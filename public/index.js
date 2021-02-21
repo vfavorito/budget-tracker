@@ -143,13 +143,15 @@ function sendTransaction(isAdding) {
             amountEl.value = "";
         });
 }
-
+// This function is called when a post to the remote database fails(so if you do not have an internet connection)
 const saveRecord = (transaction) => {
+    // opens an IndexedDB to keep track of offline transactions
     const request = window.indexedDB.open("pending", 1);
     request.onupgradeneeded = event => {
         const db = event.target.result;
         db.createObjectStore("pending", { keyPath: "date" });
     };
+    // if database opened successfully send it the transaction
     request.onsuccess = () => {
         const db = request.result;
         const transactiondb = db.transaction(["pending"], "readwrite");
@@ -157,6 +159,8 @@ const saveRecord = (transaction) => {
         bcStore.add(transaction);
     };
 };
+// this function is called after we have sent all the data from our indexedDB to the remote DB
+// it will clear out all the data that was stored in the Indexed DB then update the total,chart,and table
 const clearData = () => {
     const request = window.indexedDB.open("pending", 1);
     request.onsuccess = () => {
@@ -170,6 +174,7 @@ const clearData = () => {
     };
 };
 
+// if there is an internet connection we will look at any data that is stored in the Indexed DB and send it via post requests to the remote DB.
 const sendData = () => {
     const request = window.indexedDB.open("pending", 1);
     request.onsuccess = () => {
@@ -199,7 +204,7 @@ const sendData = () => {
         };
     }
 };
-
+// function triggered by an eventlistener on the window looking for an internet connection.
 const updateDb = () => {
     if (navigator.onLine) {
         sendData();
@@ -208,7 +213,7 @@ const updateDb = () => {
         return;
     };
 };
-
+// event listener for internet connection
 window.addEventListener("online", function () {
     updateDb();
 });
