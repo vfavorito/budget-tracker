@@ -171,7 +171,6 @@ const clearData = () => {
 };
 
 const sendData = () => {
-    console.log("we are in sendData")
     const request = window.indexedDB.open("pending", 1);
     request.onsuccess = () => {
         const db = request.result;
@@ -181,7 +180,6 @@ const sendData = () => {
         cursorRequest.onsuccess = event => {
             const cursor = event.target.result;
             if (cursor) {
-                console.log(cursor.value);
                 fetch("/api/transaction", {
                     method: "POST",
                     body: JSON.stringify(cursor.value),
@@ -196,7 +194,6 @@ const sendData = () => {
                 cursor.continue();
             }
             else {
-                console.log("update done")
                 clearData();
             };
         };
@@ -205,7 +202,6 @@ const sendData = () => {
 
 const updateDb = () => {
     if (navigator.onLine) {
-        console.log("we are in navigator was online")
         sendData();
     }
     else {
