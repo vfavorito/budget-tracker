@@ -145,22 +145,20 @@ function sendTransaction(isAdding) {
 }
 
 const saveRecord = (transaction) => {
-    const request = window.indexedDB.open("budgetchange", 1);
+    const request = window.indexedDB.open("budgetChange", 1);
     request.onupgradeneeded = event => {
         const db = event.target.result;
-        const budgetchangeStore = db.createObjectStore("budgetchange", { keyPath: "date" });
-        budgetchangeStore.createIndex("budgetchange", "budgetchange")
+        db.createObjectStore("budgetChange", { keyPath: "date" });
     };
     request.onsuccess = () => {
         const db = request.result;
-        const transactiondb = db.transaction(["budgetchange"],"readwrite");
-        const budgetchangeStore = transactiondb.objectStore("budgetchange");
-        const budgetchange = budgetchangeStore.index("budgetchange");
+        const transactiondb = db.transaction(["budgetChange"],"readwrite");
+        const bcStore = transactiondb.objectStore("budgetChange");
 
-        budgetchangeStore.add({date:transaction.date, name:transaction.name, value:transaction.value});
-    }
+        bcStore.add(transaction);
+    };
+};
 
-}
 
 document.querySelector("#add-btn").onclick = function () {
     sendTransaction(true);
