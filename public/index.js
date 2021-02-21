@@ -145,20 +145,76 @@ function sendTransaction(isAdding) {
 }
 
 const saveRecord = (transaction) => {
-    const request = window.indexedDB.open("budgetChange", 1);
+    const request = window.indexedDB.open("pending", 1);
     request.onupgradeneeded = event => {
         const db = event.target.result;
-        db.createObjectStore("budgetChange", { keyPath: "date" });
+        db.createObjectStore("pending", { keyPath: "date" });
     };
     request.onsuccess = () => {
         const db = request.result;
-        const transactiondb = db.transaction(["budgetChange"],"readwrite");
-        const bcStore = transactiondb.objectStore("budgetChange");
+        const transactiondb = db.transaction(["pending"], "readwrite");
+        const bcStore = transactiondb.objectStore("pending");
 
         bcStore.add(transaction);
     };
 };
+const clearData = () => {
+    const request = window.indexedDB.open("pending", 1);
+    request.onsuccess = () =>{
+        const db = request.result;
+        const transactiondb = db.transaction(["pending"], "readwrite");
+        const bcStore = transactiondb.objectStore("pending");
+        bcStore.clear();
+        populateChart();
+        populateTable();
+        populateTotal();
+    }
+}
 
+const sendData = () => {
+    console.log("we are in sendData")
+    const request = window.indexedDB.open("pending", 1);
+    request.onsuccess = () => {
+        const db = request.result;
+        const transactiondb = db.transaction(["pending"], "readwrite");
+        const bcStore = transactiondb.objectStore("pending");
+        const cursorRequest = bcStore.openCursor();
+        cursorRequest.onsuccess = event => {
+            const cursor = event.target.result;
+            if (cursor) {
+                console.log(cursor.value);
+                fetch("/api/transaction", {
+                    method: "POST",
+                    body: JSON.stringify(cursor.value),
+                    headers: {
+                        Accept: "application/json, text/plain, */*",
+                        "Content-Type": "application/json"
+                    }
+                })
+                    .then(response => {
+                        return response.json();
+                    })
+                cursor.continue();
+            }
+            else {
+                console.log("update done")
+                clearData();
+            };
+        };
+    }
+};
+
+const updateDb = () => {
+    if (navigator.onLine) {
+        console.log("we are in navigator was online")
+        sendData();
+    }
+    else {
+        return;
+    };
+};
+
+// updateDb();
 
 document.querySelector("#add-btn").onclick = function () {
     sendTransaction(true);
