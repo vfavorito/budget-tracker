@@ -154,13 +154,12 @@ const saveRecord = (transaction) => {
         const db = request.result;
         const transactiondb = db.transaction(["pending"], "readwrite");
         const bcStore = transactiondb.objectStore("pending");
-
         bcStore.add(transaction);
     };
 };
 const clearData = () => {
     const request = window.indexedDB.open("pending", 1);
-    request.onsuccess = () =>{
+    request.onsuccess = () => {
         const db = request.result;
         const transactiondb = db.transaction(["pending"], "readwrite");
         const bcStore = transactiondb.objectStore("pending");
@@ -214,7 +213,7 @@ const updateDb = () => {
     };
 };
 
-window.addEventListener("online", function(){
+window.addEventListener("online", function () {
     updateDb();
 });
 
