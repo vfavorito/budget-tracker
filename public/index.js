@@ -168,8 +168,8 @@ const clearData = () => {
         populateChart();
         populateTable();
         populateTotal();
-    }
-}
+    };
+};
 
 const sendData = () => {
     console.log("we are in sendData")
@@ -213,6 +213,10 @@ const updateDb = () => {
         return;
     };
 };
+
+window.addEventListener("online", function(){
+    updateDb();
+});
 
 // updateDb();
 
